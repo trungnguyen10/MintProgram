@@ -41,7 +41,7 @@ static void Transfer(int amount, Mint<USDollar>.Purse src, string srcName, Mint<
     try
     {
         System.Console.WriteLine($"Transfer {amount} from {srcName} to {desName}");
-        des.Deposit(amount, des);
+        des.Deposit(amount, src);
     }
     catch (Exception ex)
     {
