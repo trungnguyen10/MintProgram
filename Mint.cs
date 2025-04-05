@@ -14,7 +14,13 @@ public class Mint<TCurrency> where TCurrency : Currency
         private readonly Lock _balanceLock = new();
         private int _balance;
 
-        public int Balance => _balance;
+        public int Balance {
+            get {
+                lock(_balanceLock){
+                    return _balance;
+                }
+            }
+        }
 
         internal Purse(GuardOfBalanceAmount balanceGuard)
         {
