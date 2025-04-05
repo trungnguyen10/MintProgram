@@ -1,34 +1,39 @@
-using System;
-
 namespace MintProgram.MintGuards;
 
-public class GuardOfTransactionAmount<TCurrency> : GuardOf<int> where TCurrency : Currency
+public class GuardOfTransactionAmount : GuardOf<int>
 {
-    private readonly Mint<TCurrency>.Purse _purse;
+    private readonly int _sourceBalance;
 
-    public static Func<Mint<TCurrency>.Purse, GuardOfTransactionAmount<TCurrency>> Create(int amount)
+    public static Func<int, GuardOfTransactionAmount> Create(int amount)
     {
-        return (purse) => new(amount, purse);
+        return (sourceBalance) => new(amount, sourceBalance);
     }
 
-    public GuardOfTransactionAmount(int transactionAmount, Mint<TCurrency>.Purse purse)
+    private GuardOfTransactionAmount(int transactionAmount, int sourceBalance)
     {
         Value = transactionAmount;
-        _purse = purse;
+        _sourceBalance = sourceBalance;
     }
 
     protected override int Value { get; }
 
     protected override int Guard(int value)
     {
+        var errors = new List<GuardError>();
         if (value < 0)
         {
-            throw new GuardException(new GuardError("Negative Transaction Amount", $"Negative Transaction Amount of {value}"));
+            errors.Add(new GuardError("Negative Transaction Amount", $"Negative Transaction Amount of {value}"));
         }
-        if (value > _purse.Balance)
+        if (value > _sourceBalance)
         {
-            throw new GuardException(new GuardError("Transaction Amount Too Large", $"Transaction Amount of {value} is larger than the balance of source purse {_purse.Balance}"));
+            errors.Add(new GuardError("Transaction Amount Too Large", $"Transaction Amount of {value} is larger than the balance of source purse {_sourceBalance}"));
         }
+
+        if (errors is [GuardError head, .. var tails])
+        {
+            throw new GuardException(head, tails);
+        }
+
         return value;
     }
 }

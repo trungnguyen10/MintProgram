@@ -1,5 +1,3 @@
-using System;
-
 namespace MintProgram.MintGuards;
 
 public class GuardOfBalanceAmount : GuardOf<int>

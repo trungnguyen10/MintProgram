@@ -1,12 +1,10 @@
-using System;
-
 namespace MintProgram;
 
 public record GuardError(string Title, string Detail) { }
 public class GuardException : Exception
 {
     public IEnumerable<GuardError> GuardErrors { get; }
-    public GuardException(GuardError headError, params GuardError[] tailErrors) :
+    public GuardException(GuardError headError, params IEnumerable<GuardError> tailErrors) :
     base(string.Join(Environment.NewLine, Enumerable.Concat([headError], tailErrors).Select(e => $"{e.Title}: {e.Detail}")))
     {
         GuardErrors = Enumerable.Concat([headError], tailErrors);

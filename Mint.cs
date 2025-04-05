@@ -1,4 +1,3 @@
-using System;
 using MintProgram.MintGuards;
 
 namespace MintProgram;
@@ -27,11 +26,11 @@ public class Mint<TCurrency> where TCurrency : Currency
             return new(new GuardOfBalanceAmount(0));
         }
 
-        private void Decr(Func<Purse, GuardOfTransactionAmount<TCurrency>> amountGuardFunc)
+        private void Decr(Func<int, GuardOfTransactionAmount> amountGuardFunc)
         {
             lock (_balanceLock)
             {
-                _balance -= amountGuardFunc(this).Guard();
+                _balance -= amountGuardFunc(_balance).Guard();
             }
         }
 
@@ -39,8 +38,8 @@ public class Mint<TCurrency> where TCurrency : Currency
         {
             lock (_balanceLock)
             {
+                src.Decr(GuardOfTransactionAmount.Create(amount));
                 _balance += amount;
-                src.Decr(GuardOfTransactionAmount<TCurrency>.Create(amount));
             }
         }
     }
